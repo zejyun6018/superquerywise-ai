@@ -67,12 +67,13 @@ async def proxy_to_graph(request: ChatRequest):
     result_container = {"answer": None}
 
     async def run_graph():
-        final_state = await core_pipeline.run(input_state)
-
-        print(final_state)
-
-        result_container["answer"] = final_state.get("final_answer") or "Sorry, no answer found."
-        done_event.set()
+        try:
+            final_state = await core_pipeline.run(input_state)
+            result_container["answer"] = final_state.get("final_answer") or "Sorry, no answer found."
+        except Exception as e:
+            result_container["answer"] = f"Error: {str(e)}"
+        finally:
+            done_event.set()
 
     asyncio.create_task(run_graph())
 

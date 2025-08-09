@@ -206,19 +206,16 @@ FAIL
 Option 2: If one or more answers are helpful:
 - Write a concise, technically accurate, and professional summary.
 - Prioritize key specifications and technical data.
-- Explain technical terms briefly if useful.
+- Explain technical terms briefly if useful. 
 - Use clean Markdown format for clarity (e.g., bullet points or tables).
 - For lists (e.g., part numbers, models), use a Markdown table sorted alphabetically.
 - Use horizontal lines (---) to separate distinct sections or topics.
 - Eliminate redundant or overlapping content.
 - Do not include any extra commentary, reasoning, or introductory phrases.
 - Stay strictly factual and helpful.
-- Use appropriate emojis (small icons) to highlight key items, for example:
-  - 🖥️ for motherboard or hardware components
-  - ⚙️ for features or capabilities
-  - 🔧 for maintenance or troubleshooting
-  - ⚠️ for warnings or limitations
-  - 📅 for time-related information
+- For items with similar meaning or in the same category, use semantically related emojis interchangeably to avoid repetition and keep the text visually interesting.  
+  For example, for hardware you can use 🖥️, 💻, or 🔌 as appropriate; for maintenance or troubleshooting, use 🔧 or 🛠️; for warnings, use ⚠️ or ❗.  
+  This helps maintain variety while keeping the meaning clear.
 
 Important:
 - Do not wrap the entire response in code blocks.
