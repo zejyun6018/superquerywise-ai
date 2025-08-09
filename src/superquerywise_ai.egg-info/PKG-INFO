@@ -1,0 +1,39 @@
+Metadata-Version: 2.4
+Name: superquerywise-ai
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: aioredis>=2.0.1
+Requires-Dist: fastapi>=0.116.1
+Requires-Dist: langchain>=0.3.27
+Requires-Dist: langchain-mcp-adapters>=0.1.9
+Requires-Dist: langgraph>=0.6.4
+Requires-Dist: neo4j>=5.28.2
+Requires-Dist: pydantic>=2.11.7
+Requires-Dist: qdrant-client>=1.15.1
+Requires-Dist: redis>=6.4.0
+Requires-Dist: sentence-transformers>=5.1.0
+Requires-Dist: streamlit>=1.48.0
+Requires-Dist: uvicorn>=0.35.0
+
+# superquerywise-ai
+AI-powered assistant for product specification and FAQ queries.
+
+## Features
+
+- Understand and answer product specification questions
+- Handle frequently asked questions (FAQ)
+- Hybrid query support combining vector search and graph DB
+- Easy to extend with custom AI models and data sources
+
+## Getting Started
+
+1. Clone this repository  
+2. Install dependencies (e.g., Python packages)  
+3. Run the main application  
+4. Connect to AI model backend and databases  
+
+## License
+
+MIT License
