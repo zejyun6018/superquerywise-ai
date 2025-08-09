@@ -11,3 +11,4 @@ __pycache__/
 # Other ignored files, such as editor settings
 .vscode/
 .idea/
+*.egg-info/
