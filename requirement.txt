@@ -1,0 +1,12 @@
+neo4j 
+streamlit
+sentence-transformers
+qdrant-client
+fastapi 
+uvicorn
+langchain
+pydantic 
+langgraph
+langchain_mcp_adapters
+redis
+aioredis
