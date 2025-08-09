@@ -17,6 +17,7 @@ Below is an example screenshot of the integrated frontend interface — **Open W
 Open WebUI is an open-source web-based chat interface that seamlessly connects to this backend API, supporting the standard OpenAI chat format and streaming responses for a smooth and interactive user experience.
  
 
+ 
 ## Core Workflow
 
 1. **Frontend Input**  
@@ -26,13 +27,17 @@ Open WebUI is an open-source web-based chat interface that seamlessly connects t
    The Pipeline in `core.py` first checks Redis cache and Qdrant vector database for existing semantic parse results; if missing or insufficient, it calls the VLLM API to perform semantic analysis and sub-question decomposition.
 
 3. **Sub-question Classification & Routing**  
-   Each decomposed sub-question is asynchronously routed to appropriate search modules based on its `query_sources` property: Spec vector search, FAQ vector search, Graph database query, or verified component lookup.
+   Each decomposed sub-question contains a property `query_sources` that indicates the appropriate data source(s) for answering it, such as:
+   - Spec vector search
+   - FAQ vector search
+   - Graph database query (using MCP architecture)
+   - Verified component lookup (future extension)
+
+   This process implements a **Retrieval-Augmented Generation (RAG)** paradigm:  
+   The system retrieves relevant knowledge snippets from multiple sources (vector DBs, graph DB, verified components) to augment the language model's generation capability, enabling more accurate and grounded answers.
 
 4. **Answer Aggregation**  
-   After all queries return results, the Pipeline uses the VLLM API to merge sub-answers into a final response.
+   After all queries return results, the Pipeline uses the VLLM API to merge sub-answers into a final response, effectively performing generation conditioned on retrieved documents.
 
 5. **Streaming Response**  
    The backend supports Server-Sent Events (SSE) streaming responses to allow Open WebUI to display answers token-by-token in real time.
-
- 
- 
