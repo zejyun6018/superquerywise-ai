@@ -12,7 +12,10 @@ Designed for scenarios like product specification lookup and technical support Q
 
 Below is an example screenshot of the integrated frontend interface — **Open WebUI**:  
 
-![my demo ](my_demo.png)
+<p align="center">
+<img src="my_demo.png" alt="arch" width="800" />
+</p>
+ 
 
 Open WebUI is an open-source web-based chat interface that seamlessly connects to this backend API, supporting the standard OpenAI chat format and streaming responses for a smooth and interactive user experience.
  
