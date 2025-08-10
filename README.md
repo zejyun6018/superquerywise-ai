@@ -13,7 +13,7 @@ Designed for scenarios like product specification lookup and technical support Q
 Below is an example screenshot of the integrated frontend interface — **Open WebUI**:  
 
 <p align="center">
-<img src="my_demo.png" alt="arch" width="800" />
+<img src="my_demo.png" alt="arch" width="750" />
 </p>
  
 
