@@ -11,19 +11,18 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 
 
-COLLECTION_NAME = "supermicro_product_spec"
+COLLECTION_NAME = "supermicro_spec"
 EMBEDDING_MODEL_PATH = "/meta/all-mpnet-base-v2"
 QDRANT_HOST = "localhost"
 QDRANT_PORT = 6333
 
 
 VLLM_ENDPOINT = "http://localhost:9999/v1/chat/completions"
-LLM_MODEL_NAME = "gpt-oss-120b"
+LLM_MODEL_NAME = "/google/gemma-3-27b-it-GPTQ-4b-128g/"
 
 
 model = SentenceTransformer(EMBEDDING_MODEL_PATH)
 qdrant = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
-
 
 existing_collections = [c.name for c in qdrant.get_collections().collections]
 if COLLECTION_NAME not in existing_collections:
@@ -36,57 +35,49 @@ if COLLECTION_NAME not in existing_collections:
 PROMPT_TEMPLATE = """
 You are a technical assistant that converts product specification data into Q&A format.
 
-Generate clear, concise, and technically accurate Questions and Answers based on **every single key and value** in the specification data, without skipping any fields.
- 
-The product name is: {product_name}
-The product generation is: {product_generation}
-the product family is: {product_family}
+Generate clear, concise, and technically accurate Questions and Answers based on each field of the specification data.
 
+ 
+The System family is: {series_code_name}
+The System name is : {system_name}
 
 The full specification data is shown below:
 {data_row}
 
-For each specification field in the data row, generate QA pairs that help the user understand the system or its features. Every QA must explicitly mention the product name ({product_name}) to improve searchability.
+For each specification field, try to generate one or more QA pairs to help the user understand the system or its features.
 
-Output the QAs as much as possble in the following strict JSON format:
+Output the QAs in the following strict JSON format:
 
 [
   {{
     "content": "Q: <question>? A: <answer>",
     "metadata": {{
       "product_brand": "Supermicro",
-      "product_generation": "{product_generation}",
-      "product_type": {product_type},
-      "product_family": "{product_family}",
-      "product_name":"{product_name}"
+      "product_family": "{series_code_name}",
+      "product_model": "{system_name}",
+      "product_type": "System",
+      "Component_motherboard":"{motherboard_name}",
       "doc_type": "specification",
       "tags": ["list", "of", "relevant", "technical", "keywords"]
     }}
   }},
   ...
-] 
+]
 
-Notes:
-- Return only valid JSON array. No explanation, no markdown, no comments.
-- Make sure every QA explicitly references the product name {product_name}.
-- Include all keys and values from the specification data, no omissions.
-- Use relevant and precise technical tags in the metadata "tags" array for each QA.
-
+Return only valid JSON array. No explanation, no markdown, no comments.
 """
-
 
 def extract_json(text: str) -> str:
     text = re.sub(r"```(?:json)?", "", text).strip()
     match = re.search(r"\[.*\]", text, re.DOTALL)
     return match.group(0).strip() if match else text
 
-
 def call_llm(prompt: str, timeout_sec=60) -> str:
     payload = {
         "model": LLM_MODEL_NAME,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0,
-        "max_tokens": 100000,
+        "max_tokens": 10000,
     }
     try:
         response = httpx.post(VLLM_ENDPOINT, json=payload, timeout=timeout_sec)
@@ -95,33 +86,7 @@ def call_llm(prompt: str, timeout_sec=60) -> str:
     except Exception as e:
         st.error(f"❌ LLM 請求失敗: {e}")
         return ""
-
-def extract_data_value(input):
-    # 避免覆蓋內建 str
-    if isinstance(input, str):
-        try:
-            # 先解析 JSON 字串
-            data = json.loads(input)
-        except json.JSONDecodeError:
-            return None
-    elif isinstance(input, list):
-        data = input
-    else:
-        return None
-
-
-    
-    if data and isinstance(data, list) and "generation" in data[0]:
-        return data[0]["generation"]
-    elif data and isinstance(data, list) and "product_family" in data[0]:
-        return data[0]["product_family"]
-    elif data and isinstance(data, list) and "product_type" in data[0]:
-        return data[0]["product_type"]
-    return None
-
-
-
-
+ 
 def safe_get(row: dict, key: str):
     for k in row.keys():
         if k.lower() == key.lower():
@@ -132,6 +97,7 @@ def safe_get(row: dict, key: str):
 def embed_text(text: str) -> list[float]:
     emb = model.encode(text)
     return emb.tolist()
+
 
 def save_qa_to_qdrant(qa_list: list):
     points = []
@@ -151,23 +117,15 @@ def save_qa_to_qdrant(qa_list: list):
 
 
 def generate_qa_from_row(row: dict, timeout_sec=60) -> list:
-
-    product_name = safe_get(row, "motherboard_name") or ""
-    product_type = extract_data_value(safe_get(row, "motherboard_type") or "")
-    product_family = extract_data_value(safe_get(row, "product_family") or "")  
-    product_generation = extract_data_value(safe_get(row, "motherboard_generation") or "")
+    motherboard_name = safe_get(row, "motherboard_name") or ""
+    series_code_name = safe_get(row, "series_code_name") or ""
+    system_name = safe_get(row, "system_name") or ""
 
     row_text = "\n".join(f"- {k}: {v}" for k, v in row.items() if pd.notna(v))
-
-
-    print("row_text=============================================================",row_text)
-
-
     prompt = PROMPT_TEMPLATE.format(
-        product_name=product_name,
-        product_type=product_type,
-        product_family=product_family,
-        product_generation = product_generation,
+        motherboard_name=motherboard_name,
+        series_code_name=series_code_name,
+        system_name = system_name,
         data_row=row_text,
     )
 
@@ -190,7 +148,6 @@ def generate_qa_from_row(row: dict, timeout_sec=60) -> list:
 
 
         
-
 
 st.set_page_config(page_title="📄 自動 QA 生成器", layout="wide")
 st.title("📄 自動 QA 生成器（vLLM + Qdrant）")

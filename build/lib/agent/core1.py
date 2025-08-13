@@ -7,10 +7,10 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
 from langchain.llms.base import LLM
 import httpx
-from src.agent.types_defs.state_type import SlotInfo, SubQueryInfo, OverallState, SubQueryWrapper
+from types_defs.state_type import SlotInfo, SubQueryInfo, OverallState, SubQueryWrapper
 from utils import helper
 from utils import prompts_mng
-from src.agent.search_tools import GraphSearcher, VectorSearcher
+from search_tools import GraphSearcher, VectorSearcher
 import copy
 import time
 import redis.asyncio as redis
@@ -23,6 +23,7 @@ import hashlib
 import uuid
 from pydantic import BaseModel
 from langgraph.checkpoint.memory import MemorySaver
+
 from langchain.cache import InMemoryCache
 from langchain_redis import RedisCache
 
@@ -39,7 +40,7 @@ logger.setLevel(logging.INFO)
 
 class VLLM_API(LLM):
     endpoint: str = "http://localhost:9999/v1/chat/completions"
-    model_name: str = "gpt-oss-20b"
+    model_name: str = "gpt-oss-120b"
     temperature: float = 0.0
     max_tokens: int = 10000
 
@@ -224,8 +225,6 @@ class Pipeline:
             logger.error("[semantic_and_decompose] JSON parse error")
             raise
 
-        print(f"-------------response: {response}--------------\n")    
-
         slots_data = parsed.get("slots", {})
         state.slots = SlotInfo(**slots_data) if isinstance(slots_data, dict) else None
         state.intents = parsed.get("intents")
@@ -271,9 +270,11 @@ class Pipeline:
 
         return state
 
-    async def query_spec(self, wrapper: SubQueryWrapper) -> SubQueryInfo: 
+    async def query_spec(self, wrapper: SubQueryWrapper) -> SubQueryInfo:
+
+         
         print(wrapper.subquery.query)
-        await self.vector_searcher.run_spec(wrapper.subquery)
+        #await self.vector_searcher.run_spec(wrapper.subquery)
         wrapper.subquery.step_log.append("queried_spec")
         return wrapper.subquery
 
@@ -313,28 +314,12 @@ class Pipeline:
             #print("Matched intent response:", content)
             state.final_answer = content
             yield state
-
             return
-
-
- 
 
 
         question = state.messages[-1]["content"]
         state.sub_answers = [sq.sub_answer or "" for sq in state.sub_queries]
-        sub_query = [sq.query or "" for sq in state.sub_queries]
-
-        print("------------------------sub_query--------------",sub_query)
-
-
- 
- 
-        prompt = prompts_mng.build_merge_prompt(question, state.sub_answers,sub_query)
-
-
-        print("prompt prompt", prompt)
-
-
+        prompt = prompts_mng.build_merge_prompt(question, state.sub_answers)
 
         messages = [
             {"role": "system", "content": ""},
@@ -399,8 +384,7 @@ class Pipeline:
                     node = {
                         "vector_spec": "query_spec",
                         "vector_faq": "query_faq",
-                        #"graph_spec": "query_graph",
-                        "graph_spec": "query_spec",
+                        "graph_spec": "query_graph",
                         "sql_verified_component": "query_verified_comp"
                     }.get(source, "query_faq")  
                     sends.append(Send(node, SubQueryWrapper(subquery=subq)))
@@ -450,7 +434,7 @@ if __name__ == "__main__":
         input_state = OverallState(
             messages=[
                 {"role": "system", "content": ""},
-                {"role": "user", "content": "X13DEG-R?"}
+                {"role": "user", "content": "X13DAI?"}
             ]
         )
  

@@ -10,3 +10,7 @@ langgraph
 langchain_mcp_adapters
 redis
 aioredis
+langdetect
+openpyxl
+langchain-redis
+langchain_community

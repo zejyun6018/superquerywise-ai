@@ -18,7 +18,7 @@ def build_system_prompt(text: str) -> str:
 
 
 
-def build_semantic_decompose_prompt(question: str) -> str:
+def xxxxx_uild_semantic_decompose_prompt(question: str) -> str:
     return f"""
   You are a technical assistant for Supermicro Inc., specialized in system and hardware specifications.
 
@@ -147,7 +147,7 @@ def build_semantic_decompose_prompt(question: str) -> str:
 
  
 
-def build_merge_prompt(question: str, sub_answers:str, sub_questoins:str) -> str:
+def build_merge_prompt111(question: str, sub_answers:str, sub_questoins:str) -> str:
     return f"""
 You are given:
 - The original user question:  
