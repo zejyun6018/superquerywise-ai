@@ -12,7 +12,10 @@ Designed for scenarios like product specification lookup and technical support Q
 
 Below is an example screenshot of the integrated frontend interface — **Open WebUI**:  
 
-![my demo ](my_demo.png)
+<p align="center">
+<img src="my_demo.png" alt="arch" width="750" />
+</p>
+ 
 
 Open WebUI is an open-source web-based chat interface that seamlessly connects to this backend API, supporting the standard OpenAI chat format and streaming responses for a smooth and interactive user experience.
  
@@ -33,7 +36,12 @@ Open WebUI is an open-source web-based chat interface that seamlessly connects t
    - Graph database query (using MCP architecture)
    - Verified component lookup (future extension)
 
-   This process implements a **Retrieval-Augmented Generation (RAG)** paradigm:  
+   This process implements a **Retrieval-Augmented Generation (RAG)** paradigm:
+   
+   <p align="center">
+   <img src="arch.png" alt="arch" width="600" />
+   </p>
+   
    The system retrieves relevant knowledge snippets from multiple sources (vector DBs, graph DB, verified components) to augment the language model's generation capability, enabling more accurate and grounded answers.
 
 4. **Answer Aggregation**  
